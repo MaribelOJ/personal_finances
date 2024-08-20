@@ -34,7 +34,8 @@ def on_startup():
 
 @app.get("/")
 def read_root():
-    return {"mensaje":"hello word"}
+    return {"mensaje":"ADSO-26705086",
+            "Autor": "Maribel Obando"}
 # 
 # @app.post("/create-user")
 # def insert_user(user_id:str, full_name:str,mail:str,passhash:str, user_role:str):
