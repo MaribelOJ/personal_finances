@@ -40,3 +40,4 @@ def get_all_roles(db: Session):
         db.rollback()
         print(f"Error al buscar roles: {e}")
         raise HTTPException(status_code=500, detail="Error al buscar roles")
+    

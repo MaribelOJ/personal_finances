@@ -13,11 +13,12 @@ def get_user_by_id(db: Session, user_id: str):
     result = db.execute(sql, {"user_id": user_id}).fetchone()
     return result
 
+
 def create_user_sql(db: Session, user: UserCreate):
     try:
         sql_query = text(
-        "INSERT INTO users (user_id, full_name, mail, passhash, user_role) "
-        "VALUES (:user_id, :full_name, :mail, :passhash, :user_role)"
+            "INSERT INTO users (user_id, full_name, mail, passhash, user_role) "
+            "VALUES (:user_id, :full_name, :mail, :passhash, :user_role)"
         )
         params = {
             "user_id": generate_user_id(),
@@ -29,37 +30,33 @@ def create_user_sql(db: Session, user: UserCreate):
         db.execute(sql_query, params)
         db.commit()
         return True  # Retorna True si la inserción fue exitosa
+    
     except IntegrityError as e:
         db.rollback()  # Revertir la transacción en caso de error de integridad (llave foránea)
         print(f"Error al crear usuario: {e}")
         if 'Duplicate entry' in str(e.orig):
             if 'PRIMARY' in str(e.orig):
-                raise HTTPException(status_code=400, detail="Error. El ID generado ya existe, vuelva a intentar")
+                raise HTTPException(status_code=400, detail="Error. El ID generado automaticamente ya existe, vuelva a intentarlo")
             if 'for key \'mail\'' in str(e.orig):
                 raise HTTPException(status_code=400, detail="Error. El email ya está registrado")
         else:
             raise HTTPException(status_code=400, detail="Error. No hay Integridad de datos al crear usuario")
     except SQLAlchemyError as e:
-        db.rollback()
+        db.rollback()  
         print(f"Error al crear usuario: {e}")
         raise HTTPException(status_code=500, detail="Error al crear usuario")
 
 
 # Consultar un usuario por su email
 def get_user_by_email(db: Session, p_mail: str):
-
     try:
         sql = text("SELECT * FROM users WHERE mail = :mail")
-        result = db.execute(sql, {"mail":p_mail}).fetchone()
+        result = db.execute(sql, {"mail": p_mail}).fetchone()
         return result
-
     except SQLAlchemyError as e:
-        db.rollback()
         print(f"Error al buscar usuario por email: {e}")
-        raise HTTPException(status_code=500, detail="Error al buscar usuario")
-    
-
-#Consultar todos los usuarios activos
+        raise HTTPException(status_code=500, detail="Error al buscar usuario por email")
+  
 def get_all_users(db: Session):
     try:
         sql = text("SELECT * FROM users WHERE user_status = true")
@@ -71,8 +68,6 @@ def get_all_users(db: Session):
         print(f"Error al buscar usuarios: {e}")
         raise HTTPException(status_code=500, detail="Error al buscar usuarios")
 
-
-#Consultar los usuarios por rol
 def get_users_by_role(db: Session,u_role: str):
     try:
         sql = text("SELECT * FROM users WHERE user_role = :role")
@@ -84,7 +79,6 @@ def get_users_by_role(db: Session,u_role: str):
         print(f"Error al buscar usuario por rol: {e}")
         raise HTTPException(status_code=500, detail="Error al buscar usuario")
     
-
 def update_user(db: Session, user_id: str, user: UserUpdate):
     try:
         sql = "UPDATE users SET "
@@ -96,22 +90,21 @@ def update_user(db: Session, user_id: str, user: UserUpdate):
         if user.mail:
             updates.append("mail = :mail")
             params["mail"] = user.mail
-        if user.user_role:
+        if user.user_role is not None:
             updates.append("user_role = :user_role")
             params["user_role"] = user.user_role
         if user.user_status is not None:
             updates.append("user_status = :user_status")
             params["user_status"] = user.user_status
-        sql += ", ".join(updates) + " WHERE user_id = :user_id"
-
-        # for ind, valor in enumerate(updates):
-        #     if(len(valor)-1 == ind):
-        #         sql+= valor
-        #     else:
-        #         sql += valor + ", "
-
-        # sql += " WHERE user_id = :user_id"
-
+        
+        for ind, valor in enumerate(updates):
+            if len(updates) - 1 == ind:
+                sql += valor
+            else:
+                sql += valor + ", "
+        
+        sql +=" WHERE user_id = :user_id"
+        
         # Envuelve la consulta SQL en text()
         sql = text(sql)
         
@@ -129,7 +122,6 @@ def update_user(db: Session, user_id: str, user: UserUpdate):
         db.rollback()  
         print(f"Error al actualizar usuario: {e}")
         raise HTTPException(status_code=500, detail="Error al actualizar usuario")
-
 
 def get_all_users_paginated(db: Session, page: int = 1, page_size: int = 10):
     try:
@@ -150,7 +142,7 @@ def get_all_users_paginated(db: Session, page: int = 1, page_size: int = 10):
         result = db.execute(sql, params).mappings().all()
 
         # Obtener el número total de usuarios
-        count_sql = text("SELECT COUNT(user_id)) FROM users")
+        count_sql = text("SELECT COUNT(user_id) FROM users")
         total_users = db.execute(count_sql).scalar()
 
         # Calcular el número total de páginas
@@ -161,7 +153,6 @@ def get_all_users_paginated(db: Session, page: int = 1, page_size: int = 10):
         print(f"Error al obtener todos los usuarios: {e}")
         raise HTTPException(status_code=500, detail="Error al obtener todos los usuarios")
 
-# Eliminar un usuario
 def delete_user(db: Session, user_id: str):
     try:
         sql = text("DELETE FROM users WHERE user_id = :user_id")

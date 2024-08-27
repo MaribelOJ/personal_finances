@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from appv1.crud.users import create_user_sql, delete_user, get_all_users, get_all_users_paginated, get_user_by_email, get_user_by_id,get_users_by_role, update_user
 from db.database import get_db
 from sqlalchemy.orm import Session
-from appv1.schemas.user import UserCreate,UserResponse,UserUpdate, PaginatedUsersResponse
+from appv1.schemas.user import ResponseLogin, UserCreate,UserLogin,UserResponse,UserUpdate, PaginatedUsersResponse
 from sqlalchemy import text
 from core.security import verify_password, create_access_token, verify_token
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -35,7 +35,7 @@ def authenticate_user(username: str, password: str, db: Session):
 #     token = create_access_token(data)    
 #     return {"token":token}
 
-@router.post("/token")
+@router.post("/token", response_model=ResponseLogin)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db)
@@ -47,12 +47,19 @@ async def login_for_access_token(
             detail="Datos Incorrectos en email o password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
     access_token = create_access_token(
-        data={"sub": user.user_id, "rol": user.user_role}
+        data={"sub": user.user_id, "rol":user.user_role}
     )
 
-    return {"access_toke": access_token, "token_type" : "bearer"}
+    return ResponseLogin(
+        user=UserLogin(
+            user_id=user.user_id,
+            full_name=user.full_name,
+            mail=user.mail,
+            user_role=user.user_role
+        ),
+        access_token=access_token
+    )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/access/token")
 
@@ -63,7 +70,7 @@ async def get_current_user(
     user = await verify_token(token)
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid token")
-    user_db = get_user_by_id(user.get("sub"), db)
+    user_db = get_user_by_id(db, user)
     if user_db is None:
         raise HTTPException(status_code=404, detail="User not found")
     if not user_db.user_status:
