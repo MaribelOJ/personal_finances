@@ -1,8 +1,8 @@
 <script setup >
-    import BlankPage from '../components/Dashboard/BlankPage.vue';
-import FooterCom from '../components/Dashboard/FooterCom.vue';
-import Sidebar from '../components/Dashboard/Sidebar.vue';
+    import FooterCom from '../components/Dashboard/FooterCom.vue';
+    import Sidebar from '../components/Dashboard/Sidebar.vue';
     import Topbar from '../components/Dashboard/Topbar.vue';
+    import UserProfile from '../components/Users/UserProfile.vue';
 </script>
 
 <template>
@@ -13,9 +13,8 @@ import Sidebar from '../components/Dashboard/Sidebar.vue';
             <!-- Main Content -->
             <div id="content">
                 <Topbar />
-                <BlankPage />
+                <UserProfile />
             </div>
-
             <FooterCom />
         </div>
     </div>

@@ -3,10 +3,10 @@ from datetime import timedelta
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException
 from appv1.crud.permissions import get_all_permissions
-from appv1.crud.users import create_user_sql, delete_user, get_all_users, get_all_users_paginated, get_user_by_email, get_user_by_id,get_users_by_role, update_user
+from appv1.crud.users import create_user_sql, get_user_by_email, get_user_by_id
 from db.database import get_db
 from sqlalchemy.orm import Session
-from appv1.schemas.user import ResponseLogin, UserCreate,UserLogin,UserResponse,UserUpdate, PaginatedUsersResponse
+from appv1.schemas.user import ResponseLogin, UserCreate,UserLogin
 from sqlalchemy import text
 from core.security import verify_password, create_access_token, verify_token
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -53,7 +53,7 @@ async def login_for_access_token(
         data={"sub": user.user_id, "rol":user.user_role}
     )
 
-    permisos = get_all_permissions(db,user.user_role)
+    permisos = get_all_permissions(db, user.user_role)
 
     return ResponseLogin(
         user=UserLogin(

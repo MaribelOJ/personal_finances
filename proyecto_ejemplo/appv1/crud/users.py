@@ -13,7 +13,6 @@ def get_user_by_id(db: Session, user_id: str):
     result = db.execute(sql, {"user_id": user_id}).fetchone()
     return result
 
-
 def create_user_sql(db: Session, user: UserCreate):
     try:
         sql_query = text(
@@ -45,7 +44,6 @@ def create_user_sql(db: Session, user: UserCreate):
         db.rollback()  
         print(f"Error al crear usuario: {e}")
         raise HTTPException(status_code=500, detail="Error al crear usuario")
-
 
 # Consultar un usuario por su email
 def get_user_by_email(db: Session, p_mail: str):
