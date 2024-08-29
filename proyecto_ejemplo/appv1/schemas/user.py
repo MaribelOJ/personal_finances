@@ -32,6 +32,14 @@ class PaginatedUsersResponse(BaseModel):
 class UserLogin(UserBase):
     user_id: str
 
+class PermissionsRol(BaseModel):
+    module_name:str
+    p_select: bool
+
 class ResponseLogin(BaseModel):
     User: UserLogin
+    permissions: List[PermissionsRol]
     access_token: str
+
+
+# mlsn.7207de81149062f74056cf0fa6519f1660a4674f4a4137eeaedad215f27a14b3
