@@ -1,22 +1,13 @@
 from fastapi import FastAPI
-
-from appv1.routers import categories, login, users, roles
+from appv1.routers import login, users
 from fastapi.middleware.cors import CORSMiddleware
-from appv1.schemas.user import UserCreate
-from appv1.schemas.role import RoleBase
 from db.database import test_db_connection
-from core.security import get_hashed_password, verify_password, create_access_token
-
 
 app = FastAPI()
 
-app.include_router(users.router,prefix="/users", tags=["users"])
+app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(login.router, prefix="/access", tags=["access"])
 
-app.include_router(roles.router,prefix="/roles", tags=["roles"])
-
-app.include_router(categories.router,prefix="/categories", tags=["category"])
-
-app.include_router(login.router, prefix = "/access", tags=["access"])
 
 # Configuración de CORS para permitir todas las solicitudes desde cualquier origen
 app.add_middleware(

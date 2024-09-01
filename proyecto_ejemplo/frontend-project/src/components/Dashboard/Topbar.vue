@@ -169,7 +169,7 @@
             <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
+                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ user?.full_name }}</span>
                     <img class="img-profile rounded-circle"
                         src="">
                 </a>
@@ -199,3 +199,31 @@
         </ul>
     </nav>
 </template>
+
+<script>
+import { useAuthStore } from '@/store'; // Importa el store de autenticación
+import { useRouter } from 'vue-router';
+export default {
+    setup() {
+        const authStore = useAuthStore(); // Obtén la instancia del store
+        const router = useRouter(); // Obtén la instancia del router
+
+        // Variables para acceder a los datos del store
+        const user = authStore.user;
+        const permissions = authStore.permissions;
+
+
+        // Acción para cerrar sesión
+        const logout = () => {
+            authStore.logout(); // Llama a la acción de logout del store
+            router.push('/'); // Redirige a la ruta raíz
+        };
+
+        return {
+            user,
+            permissions,
+            logout
+        };
+    }
+};
+</script>

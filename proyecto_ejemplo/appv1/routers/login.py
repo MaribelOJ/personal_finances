@@ -6,7 +6,7 @@ from appv1.crud.permissions import get_all_permissions
 from appv1.crud.users import create_user_sql, get_user_by_email, get_user_by_id
 from db.database import get_db
 from sqlalchemy.orm import Session
-from appv1.schemas.user import ResponseLogin, UserCreate,UserLogin
+from appv1.schemas.user import UserCreate, UserLoggin, ResponseLoggin
 from sqlalchemy import text
 from core.security import verify_password, create_access_token, verify_token
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -16,8 +16,8 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/access/token")
 
 async def get_current_user(
-        token: str = Depends(oauth2_scheme),
-        db: Session = Depends(get_db)
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
 ):
     user = await verify_token(token)
     if user is None:
@@ -37,7 +37,7 @@ def authenticate_user(username: str, password: str, db: Session):
         return False
     return user
 
-@router.post("/token", response_model=ResponseLogin)
+@router.post("/token", response_model=ResponseLoggin)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db)
@@ -55,8 +55,8 @@ async def login_for_access_token(
 
     permisos = get_all_permissions(db, user.user_role)
 
-    return ResponseLogin(
-        user=UserLogin(
+    return ResponseLoggin(
+        user=UserLoggin(
             user_id=user.user_id,
             full_name=user.full_name,
             mail=user.mail,

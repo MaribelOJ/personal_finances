@@ -7,11 +7,13 @@ from core.utils import generate_user_id
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from appv1.schemas.user import UserCreate, UserUpdate
 
-# Consultar un usuario por su ID
+# Consultar por ID
 def get_user_by_id(db: Session, user_id: str):
     sql = text("SELECT * FROM users WHERE user_id = :user_id")
     result = db.execute(sql, {"user_id": user_id}).fetchone()
     return result
+
+#Crear con Schema
 
 def create_user_sql(db: Session, user: UserCreate):
     try:
@@ -45,16 +47,17 @@ def create_user_sql(db: Session, user: UserCreate):
         print(f"Error al crear usuario: {e}")
         raise HTTPException(status_code=500, detail="Error al crear usuario")
 
-# Consultar un usuario por su email
+# Consultar por email
 def get_user_by_email(db: Session, p_mail: str):
     try:
-        sql = text("SELECT * FROM users WHERE mail = :mail")
-        result = db.execute(sql, {"mail": p_mail}).fetchone()
+        sql = text("SELECT * FROM users WHERE mail = :email")
+        result = db.execute(sql, {"email": p_mail}).fetchone()
         return result
     except SQLAlchemyError as e:
         print(f"Error al buscar usuario por email: {e}")
         raise HTTPException(status_code=500, detail="Error al buscar usuario por email")
   
+#Consultar todos
 def get_all_users(db: Session):
     try:
         sql = text("SELECT * FROM users WHERE user_status = true")
@@ -66,17 +69,7 @@ def get_all_users(db: Session):
         print(f"Error al buscar usuarios: {e}")
         raise HTTPException(status_code=500, detail="Error al buscar usuarios")
 
-def get_users_by_role(db: Session,u_role: str):
-    try:
-        sql = text("SELECT * FROM users WHERE user_role = :role")
-        result = db.execute(sql, {"role":u_role}).fetchall()
-        return result
-
-    except SQLAlchemyError as e:
-        db.rollback()
-        print(f"Error al buscar usuario por rol: {e}")
-        raise HTTPException(status_code=500, detail="Error al buscar usuario")
-    
+#Actualizar con schema y Id
 def update_user(db: Session, user_id: str, user: UserUpdate):
     try:
         sql = "UPDATE users SET "
@@ -121,6 +114,7 @@ def update_user(db: Session, user_id: str, user: UserUpdate):
         print(f"Error al actualizar usuario: {e}")
         raise HTTPException(status_code=500, detail="Error al actualizar usuario")
 
+#Consultar por página
 def get_all_users_paginated(db: Session, page: int = 1, page_size: int = 10):
     try:
         # Calcular el offset basado en el número de página y el tamaño de página
@@ -151,6 +145,7 @@ def get_all_users_paginated(db: Session, page: int = 1, page_size: int = 10):
         print(f"Error al obtener todos los usuarios: {e}")
         raise HTTPException(status_code=500, detail="Error al obtener todos los usuarios")
 
+#Borrar con ID
 def delete_user(db: Session, user_id: str):
     try:
         sql = text("DELETE FROM users WHERE user_id = :user_id")
@@ -165,3 +160,16 @@ def delete_user(db: Session, user_id: str):
         db.rollback()  
         print(f"Error al eliminar usuario: {e}")
         raise HTTPException(status_code=500, detail="Error al eliminar usuario")
+
+#Consultar por Rol
+def get_users_by_role(db: Session,u_role: str):
+    try:
+        sql = text("SELECT * FROM users WHERE user_role = :role")
+        result = db.execute(sql, {"role":u_role}).fetchall()
+        return result
+
+    except SQLAlchemyError as e:
+        db.rollback()
+        print(f"Error al buscar usuario por rol: {e}")
+        raise HTTPException(status_code=500, detail="Error al buscar usuario")
+    

@@ -3,6 +3,7 @@
     import Sidebar from '../components/Dashboard/Sidebar.vue';
     import Topbar from '../components/Dashboard/Topbar.vue';
     import UserProfile from '../components/Users/UserProfile.vue';
+    import BlankPage from '../components/Dashboard/BlankPage.vue';
 </script>
 
 <template>
@@ -13,7 +14,7 @@
             <!-- Main Content -->
             <div id="content">
                 <Topbar />
-                <UserProfile />
+                <BlankPage></BlankPage>
             </div>
             <FooterCom />
         </div>

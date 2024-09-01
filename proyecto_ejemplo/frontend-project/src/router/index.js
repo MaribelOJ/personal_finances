@@ -6,6 +6,8 @@ import ForgotPassView from '../views/ForgotPassView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
 import UserProfile from '../components/Users/UserProfile.vue';
 import DashboardView from '../views/DashboardView.vue';
+import RegisterUser from '../components/Users/RegisterUser.vue';
+import BlankPage from '../components/Dashboard/BlankPage.vue';
 
 const routes = [
   // Ruta por defecto que apunta a LoginView
@@ -15,6 +17,8 @@ const routes = [
   { path: '/not-found', name: 'NotFound', component: NotFoundView },
   { path: '/user-profile', name: 'UserProfile', component: UserProfile },
   { path: '/dashboard', name: 'Dashboard', component: DashboardView },
+  { path: '/register', name: 'Register', component: RegisterUser},
+  { path: '/insert', name: 'Insert', component: BlankPage},
   // Redirección en caso de ruta no encontrada
   { path: '/:pathMatch(.*)*', redirect: '/not-found' },
 ];

@@ -1,10 +1,10 @@
 from typing import Annotated
 from pydantic import BaseModel
-from pydantic import BaseModel,StringConstraints
+from pydantic import BaseModel
 
 
 class RoleBase(BaseModel):
-    rol_name: Annotated[str,StringConstraints(max_length=80)]
+    rol_name: str
 
 class RoleCreate(RoleBase):
     pass

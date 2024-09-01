@@ -6,12 +6,11 @@ from appv1.routers.login import get_current_user
 from db.database import get_db
 from sqlalchemy.orm import Session
 from appv1.schemas.user import UserCreate,UserResponse,UserUpdate, PaginatedUsersResponse
-from sqlalchemy import text
 
 router = APIRouter()
 MODULE = 'usuarios'
 
-
+#Insertar con schema
 @router.post("/create")
 async def insert_user(
    user: UserCreate,
@@ -20,7 +19,7 @@ async def insert_user(
 ):
    permisos = get_permissions(db,current_user.user_role,MODULE)
    if not permisos.p_insert:
-       raise HTTPException(status_code=401, detail="Usuario no autorizado")
+      raise HTTPException(status_code=401, detail="Usuario no autorizado")
    
    if current_user.user_role != 'SuperAdmin':
       if user.user_role == 'SuperAdmin':
@@ -41,6 +40,7 @@ async def read_user_by_email(
    if current_user.mail != email:
       if not permisos.p_select:
          raise HTTPException(status_code=404, detail="Usuario no autorizado")
+      
    usuario = get_user_by_email(db,email)
    if usuario is None:
       raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -56,21 +56,15 @@ async def read_all_users(
        raise HTTPException(status_code=401, detail="Usuario no autorizado")
    
    usuarios = get_all_users(db)
-   if len(usuarios)==0:
+   if len(usuarios) == 0:
       raise HTTPException(status_code=404, detail="Ningún usuario encontrado")
    return usuarios
 
-@router.get("/get-users-by-role/", response_model=List[UserResponse])
-async def read_users_by_role(role: str, db: Session = Depends(get_db)):
-   usuarios = get_users_by_role(db,role)
-   if len(usuarios)==0:
-      raise HTTPException(status_code=404, detail="Ningún usuario con ese rol encontrado")
-   return usuarios
 
-# Endpoint para actualizar un usuario
 @router.put("/update/", response_model=dict)
 def update_user_by_id(
-   user_id: str, user: UserUpdate,
+   user_id: str,
+   user: UserUpdate,
    db: Session = Depends(get_db),
    current_user: UserResponse = Depends(get_current_user)
 ):
@@ -78,9 +72,6 @@ def update_user_by_id(
    if user_id != current_user.user_id:
       if not permisos.p_update:
          raise HTTPException(status_code=401, detail="Usuario no autorizado")
-   # if current_user.user_role == 'Administrador' and user.user_role != "Cliente":
-   #    if user.user_role == 'SuperAdmin' or user_id != current_user.user_id:
-   #       raise HTTPException(status_code=401, detail="Usuario no autorizado")
       
    verify_user = get_user_by_id(db,user_id)
    if verify_user is None:
@@ -90,7 +81,7 @@ def update_user_by_id(
    if db_user:
       return {"mensaje": "registro actualizado con éxito" }
 
-# usuarios paginados
+
 @router.get("/users-by-page/", response_model=PaginatedUsersResponse)
 def get_all_users_by_page(
    page: int = 1,
@@ -112,6 +103,7 @@ def get_all_users_by_page(
       "page_size": page_size
    }
 
+
 @router.delete("/delete/{user_id}", response_model=dict)
 def delete_user_by_id(
    user_id: str, 
@@ -130,4 +122,15 @@ def delete_user_by_id(
    result = delete_user(db, user_id)
    if result:
       return {"mensaje": "Usuario eliminado con éxito"}
+
+
+@router.get("/get-users-by-role/", response_model=List[UserResponse])
+async def read_users_by_role(role: str, db: Session = Depends(get_db)):
+   usuarios = get_users_by_role(db,role)
+   if len(usuarios)==0:
+      raise HTTPException(status_code=404, detail="Ningún usuario con ese rol encontrado")
+   return usuarios
+
+
+
    
